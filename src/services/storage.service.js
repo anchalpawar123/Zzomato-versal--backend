@@ -1,20 +1,29 @@
- const ImageKit = require("imagekit");
+ let imagekitInstance = null;
 
-const imagekit = new ImageKit({
-    publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
-    privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
-    urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT
-});
+async function getImageKit() {
+    if (!imagekitInstance) {
+        const ImageKit = (await import("imagekit")).default;
+
+        imagekitInstance = new ImageKit({
+            publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+            privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+            urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT
+        });
+    }
+    return imagekitInstance;
+}
 
 async function uploadFile(file, fileName) {
-    const result = await imagekit.upload({
-        file: file, // required
-        fileName: fileName, // required
-    })
+    const imagekit = await getImageKit();
 
-    return result; // Return the URL of the uploaded file
+    const result = await imagekit.upload({
+        file: file,
+        fileName: fileName
+    });
+
+    return result;
 }
 
 module.exports = {
     uploadFile
-}
+};
